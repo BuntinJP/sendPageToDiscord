@@ -2,13 +2,7 @@
     "manifest_version": 3,
     "name": "send to discord",
     "version": "1.0.0",
-    "permissions": [
-        "activeTab",
-        "tabs",
-        "storage",
-        "contextMenus",
-        "webRequest"
-    ],
+    "permissions": ["activeTab", "tabs", "storage", "contextMenus", "webRequest"],
     "action": {
         "default_icon": "icons/icon128.png",
         "default_title": "send to discord",
