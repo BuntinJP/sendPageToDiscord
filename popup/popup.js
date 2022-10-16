@@ -4,8 +4,8 @@ console.log(chrome.storage.local.get("discord_token"));
 let tokenArea = document.getElementById("token");
 let registButton = document.getElementById("regist");
 let postButton = document.getElementById("postAll");
-const token = { test: "test" };
 const message = { username: "ブラウザから", content: "fetch api を利用" };
+let URL = "";
 
 async function postData(url = "", data = {}) {
 	const response = await fetch(url, {
@@ -19,9 +19,12 @@ async function postData(url = "", data = {}) {
 	return await response.text();
 }
 
-/* postData(url, message)
-    .then((data) => console.log(data))
-    .catch((error) => console.error(error)); */
+const split = (array, n) =>
+	array.reduce(
+		(a, c, i) =>
+			i % n === 0 ? [...a, [c]] : [...a.slice(0, -1), [...a[a.length - 1], c]],
+		[],
+	);
 
 function registToken() {
 	let token = tokenArea.value;
@@ -31,13 +34,35 @@ function registToken() {
 	tokenArea.value = "";
 }
 
-function loadCurrent() {
-	chrome.windows.getCurrent({ populate: true }, function () {});
+function post() {
+	chrome.storage.local.get("discord_token", function (result) {
+		URL = result.discord_token;
+	});
+	var tabs = chrome.tabs.query({ currentWindow: true });
+	tabs.then((tabs) => {
+		const embeds = convertTabToEmbed(tabs);
+		const splitedEmbeds = split(embeds, 10);
+		splitedEmbeds.forEach((embeds) => {
+            console.log(embeds);
+			postData(URL, {embeds: embeds});
+		});
+	});
 }
 
-function postList() {
-	console.log(chrome.storage.local.get("discord_token").text());
-}
+const convertTabToEmbed = (tabs) => {
+	return tabs.map((tab) => {
+		return {
+			title: tab.title,
+			url: tab.url,
+			//description: "`" + tab.url + "`",
+			//author: { name: tab.title, url: tab.url, icon_url: tab.favIconUrl },
+		};
+	});
+};
+/* , function (tabs) {
+        tabs.forEach(function (tab) {
+            postData(URL, { username: tab.title, content: tab.url });
+        }); */
 
 registButton.addEventListener("click", registToken);
-postButton.addEventListener("click", postList);
+postButton.addEventListener("click", post);
